@@ -21,3 +21,12 @@ func LoadDescriptor(path string) (d Descriptor, err error) {
 	err = json.Unmarshal(data, &d)
 	return
 }
+
+func (d Descriptor) Test(doc Document) (err error) {
+	for _, atom := range d.Atoms {
+		if _, _, err = atom.Locator.Find(doc); err != nil {
+			return
+		}
+	}
+	return
+}

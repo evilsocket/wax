@@ -4,6 +4,7 @@ import (
 	"flag"
 	"fmt"
 	"os"
+	"time"
 
 	"github.com/evilsocket/wax/schema"
 )
@@ -16,33 +17,43 @@ var (
 	desc     schema.Descriptor
 )
 
-func init() {
-	flag.StringVar(&docPath, "document", "", "Path of the document to use as a baseline template.")
-	flag.StringVar(&descPath, "schema", "", "Path of the schema descriptor of the input document.")
-	flag.Parse()
-}
-
-func fatal(format string, args ...interface{}) {
+func adios(format string, args ...interface{}) {
 	fmt.Fprintf(os.Stderr, format, args...)
 	os.Exit(1)
 }
 
-func precheck() {
+func init() {
+	flag.StringVar(&docPath, "document", "", "Path of the document to use as a baseline template.")
+	flag.StringVar(&descPath, "schema", "", "Path of the schema descriptor of the input document.")
+	flag.Parse()
+
 	if docPath == "" {
-		fatal("no --document specified")
+		adios("no --document specified")
 	} else if descPath == "" {
-		fatal("no --schema specified")
+		adios("no --schema specified")
 	}
 }
 
 func main() {
-	precheck()
-
 	if doc, err = schema.LoadDocument(docPath); err != nil {
-		fatal("error while loading document %s: %s\n", docPath, err)
+		adios("error while loading document %s: %s\n", docPath, err)
 	} else if desc, err = schema.LoadDescriptor(descPath); err != nil {
-		fatal("error while loading schema descriptor %s: %s\n", descPath, err)
+		adios("error while loading schema descriptor %s: %s\n", descPath, err)
 	}
 
-	fmt.Printf("all good buddy\n")
+	start := time.Now()
+	if err = desc.Test(doc); err != nil {
+		adios("%v\n", err)
+	}
+	elapsed := time.Now().Sub(start)
+
+	fmt.Printf("loaded %d bytes of document raw data\n", doc.Size)
+	fmt.Printf("loaded schema `%s` (%d atoms tested in %dns)\n", desc.Name, len(desc.Atoms), elapsed/time.Nanosecond)
+
+	fmt.Println()
+	fmt.Printf("-------------------------------------\n%s\n-------------------------------------\n", doc.Data)
+	for _, atom := range desc.Atoms {
+		off, size, _ := atom.Locator.Find(doc)
+		fmt.Printf("%s\n  %s[%d:%d] -> '%s'\n", atom.Name, atom.Type, off, size, doc.Data[off:off+size])
+	}
 }

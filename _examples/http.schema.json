@@ -1,0 +1,37 @@
+{
+    "name": "http.vulnweb.com",
+    "atoms":[
+        {
+            "name": "method",
+            "type": "string",
+            "locator": {
+                "type": "exact",
+                "data": "GET"
+            }
+        },
+        {
+            "name": "v_major",
+            "type": "int",
+            "locator": {
+                "type": "re",
+                "data": "HTTP/(\\d+)\\.1"
+            }
+        },
+        {
+            "name": "cat_id",
+            "type": "string",
+            "locator": {
+                "type": "re",
+                "data": "cat=(\\d+)"
+            }
+        },
+        {
+            "name": "hostname",
+            "type": "string",
+            "locator": {
+                "type": "exact",
+                "data": "testphp.vulnweb.com"
+            }
+        }
+    ]
+}
