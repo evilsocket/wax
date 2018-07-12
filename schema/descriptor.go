@@ -22,11 +22,14 @@ func LoadDescriptor(path string) (d Descriptor, err error) {
 	return
 }
 
-func (d Descriptor) Test(doc Document) (err error) {
+func (d Descriptor) Prepare(doc Document) error {
 	for _, atom := range d.Atoms {
-		if _, _, err = atom.Locator.Find(doc); err != nil {
-			return
+		// check if the locator can isolate this mf
+		if off, size, err := atom.Locator.Find(doc); err != nil {
+			return err
+		} else if err = atom.Prepare(doc.Data[off : off+size]); err != nil {
+			return err
 		}
 	}
-	return
+	return nil
 }

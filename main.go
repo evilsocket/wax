@@ -42,13 +42,13 @@ func main() {
 	}
 
 	start := time.Now()
-	if err = desc.Test(doc); err != nil {
+	if err = desc.Prepare(doc); err != nil {
 		adios("%v\n", err)
 	}
 	elapsed := time.Now().Sub(start)
 
 	fmt.Printf("loaded %d bytes of document raw data\n", doc.Size)
-	fmt.Printf("loaded schema `%s` (%d atoms tested in %dns)\n", desc.Name, len(desc.Atoms), elapsed/time.Nanosecond)
+	fmt.Printf("loaded schema `%s` (%d atoms preprocessed in %dns)\n", desc.Name, len(desc.Atoms), elapsed/time.Nanosecond)
 
 	fmt.Println()
 	fmt.Printf("-------------------------------------\n%s\n-------------------------------------\n", doc.Data)
